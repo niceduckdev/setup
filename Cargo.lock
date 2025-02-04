@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "iterum"
+name = "school-setup"
 version = "1.0.0"

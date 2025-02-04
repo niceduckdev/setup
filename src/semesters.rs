@@ -1,44 +1,30 @@
 use std::fs;
+use std::io;
 use std::path::Path;
 use std::os::unix::fs::symlink;
 use std::fs::remove_file;
 
+use crate::parser;
+
 macro_rules! base_path { () => ( "/home/kaj/school/" ) }
 macro_rules! semester_path { () => ( concat!(base_path!(), "semester") ) }
 
-struct Semester {
-    name: String,
-    path: String
-}
-
-fn read_semesters() -> Vec<Semester> {
-    let mut semesters = Vec::new();
-    match fs::read_dir(base_path!()) {
-        Ok(entries) => {
-            for entry in entries {
-                match entry {
-                    Ok(entry) => {
-                        let name: String = entry.file_name().to_str().expect("semester name could not be read").to_string();
-                        let path: String = entry.path().to_str().expect("semester path could not be read").to_string();
-
-                        if name.starts_with(".") || entry.path().is_symlink() {
-                            continue;
-                        }
-                        
-                        semesters.push(Semester { name, path });
-                    },
-                    Err(_error) => println!("file not found"),
-                }
-            }
-        }
-        Err(_error) => println!("{} does not exist", base_path!()),
+pub fn get_current() -> io::Result<String> {
+    if !Path::new(semester_path!()).exists() {
+        return Ok("null".to_string());
     }
 
-    return semesters;
+    let current = fs::read_link(semester_path!())?;
+    
+    if let Some(name) = current.file_name() {
+        return Ok(name.to_string_lossy().to_string());
+    }
+
+    return Ok("null".to_string())
 }
 
 pub fn command(args: Vec<String>) {
-    let semesters: Vec<Semester> = read_semesters();
+    let semesters: Vec<parser::File> = parser::read_files(base_path!().to_string());
 
     if args.len() <= 2 {
         for semester in semesters {
