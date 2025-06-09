@@ -16,8 +16,11 @@ pub fn get_current() -> io::Result<String> {
     }
 
     let current = fs::read_link(course_path!())?;
-    
+
     if let Some(name) = current.file_name() {
+        if name == "semester" {
+            return Ok("null".to_string())
+        }
         return Ok(name.to_string_lossy().to_string());
     }
 
@@ -28,9 +31,20 @@ pub fn command(args: Vec<String>) {
     let courses: Vec<parser::File> = parser::read_files(semester_path!().to_string());
 
     if args.len() <= 2 {
+        println!("null");
         for course in courses {
             println!("{}", course.name);
         }
+
+        return;
+    }
+
+    if args[2] == "null" {
+        if Path::new(course_path!()).exists() {
+            let _ = remove_file(course_path!());
+        }
+
+        let _ = symlink(semester_path!(), course_path!());
 
         return;
     }
