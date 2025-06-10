@@ -8,3 +8,5 @@ when i press super+c, rofi shows all of my courses in my currently selected seme
 
 when i press super+p it opens in my terminal.
 `alacritty --working-directory $HOME/school/course`
+
+read my post on https://niceduck.dev/posts/setup-for-college
